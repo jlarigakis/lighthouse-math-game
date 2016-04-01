@@ -1,7 +1,16 @@
-@starting_lives = 3
+require_relative "player"
+def new_game
+  get_names if Player.players.empty?
+  Player.players.each { |p| p.revive }
+  @current_player = Player.players.first
+  puts "Starting game."
+  show_lives
+  game_loop
+end
+
 def challenge(player)
   question, answer = generate_question
-  print "#{@names[player]}: "
+  print "#{@current_player.name}: "
   puts question
   player_answer = gets.to_i
 
@@ -9,7 +18,7 @@ def challenge(player)
     puts "Correct!"
   else
     puts "Wrong! The correct answer is #{answer.to_s}."
-    @lives[player] -= 1
+    @current_player.kill
     show_lives
   end
 end
@@ -24,59 +33,56 @@ end
 
 def show_lives
   puts "Lives remaining: "
-  @lives.each do |key, p_lives|
-    puts " #{@names[key]}: #{p_lives}"
+  Player.players.each do |player|
+    puts "  #{player.name}: #{player.lives}"
   end
   puts
 end
 
 def toggle_player
-  @current_player = (@current_player == :player_1) ? :player_2 : :player_1
+  i = Player.players.index(@current_player)
+  @current_player = Player.players[i + 1] || Player.players.first
 end
 
 def game_over?
-  @lives.has_value? 0
+  Player.players.one? { |p| p.alive? }
 end
 
-def report_winner
-  winner = @names.select do |k, name| 
-    @lives[k] != 0
-  end.values.first if game_over?
-  puts "The winner is #{winner}."
-end
-
-
-def new_game
-  get_names unless @names
-  @lives = { player_1: @starting_lives, player_2: @starting_lives }
-  @current_player = :player_1
-  puts "Starting game between #{@names[:player_1]} and #{@names[:player_2]}."
-  puts "Both players have #{@starting_lives} lives."
-  game_loop
+def winner
+  Player.players.find { |p| p.alive? } if game_over?
 end
 
 def get_names
-  @names = {}
   print "Player 1, what is your name? "
-  @names[:player_1] = gets.chomp
+  Player.new(gets.chomp)
 
   print "Player 2, what is your name? "
-  @names[:player_2] = gets.chomp
+  Player.new(gets.chomp)
 end
 
-def game_loop 
+def game_loop
   loop do
     challenge @current_player
 
     if game_over?
-      report_winner
+      puts "The game winner is #{winner.name}."
+      winner.add_point
+      Player.players.each do |p|
+        puts "#{p.name} has #{p.points_string}."
+      end
       break
     end
 
     toggle_player
   end
+
   print "Play again? (y/[n]) "
-  new_game if gets.chomp == "y"
+
+  return new_game if gets.chomp.downcase == "y"
+
+  winner = Player.players.max_by { |p| p.points }
+  puts "#{winner.name} wins the match with #{winner.points_string}."
 end
 
 new_game
+
