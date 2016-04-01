@@ -21,6 +21,6 @@ end
 winner = players.max_by { |p| p.points }
 puts "#{winner.name} wins the match with #{winner.points_string}."
 puts
-puts players
-  .reject { |p| p = winner }
-  .each { |p| "#{p.name} has #{p.points_string}." }
+players
+  .reject { |p| p == winner }
+  .each { |p| puts "#{p.name} has #{p.points_string}." }
