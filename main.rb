@@ -1,8 +1,8 @@
 require_relative "player"
 def new_game
-  get_names if Player.players.empty?
-  Player.players.each { |p| p.revive }
-  @current_player = Player.players.first
+  get_names if Player.all.empty?
+  Player.all.each { |p| p.revive }
+  @current_player = Player.all.first
   puts "Starting game."
   show_lives
   game_loop
@@ -33,23 +33,23 @@ end
 
 def show_lives
   puts "Lives remaining: "
-  Player.players.each do |player|
+  Player.all.each do |player|
     puts "  #{player.name}: #{player.lives}"
   end
   puts
 end
 
 def toggle_player
-  i = Player.players.index(@current_player)
-  @current_player = Player.players[i + 1] || Player.players.first
+  i = Player.all.index(@current_player)
+  @current_player = Player.all[i + 1] || Player.all.first
 end
 
 def game_over?
-  Player.players.one? { |p| p.alive? }
+  Player.all.one? { |p| p.alive? }
 end
 
 def winner
-  Player.players.find { |p| p.alive? } if game_over?
+  Player.all.find { |p| p.alive? } if game_over?
 end
 
 def get_names
@@ -67,7 +67,7 @@ def game_loop
     if game_over?
       puts "The game winner is #{winner.name}."
       winner.add_point
-      Player.players.each do |p|
+      Player.all.each do |p|
         puts "#{p.name} has #{p.points_string}."
       end
       break
@@ -80,7 +80,7 @@ def game_loop
 
   return new_game if gets.chomp.downcase == "y"
 
-  winner = Player.players.max_by { |p| p.points }
+  winner = Player.all.max_by { |p| p.points }
   puts "#{winner.name} wins the match with #{winner.points_string}."
 end
 

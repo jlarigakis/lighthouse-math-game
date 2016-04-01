@@ -1,9 +1,9 @@
 class Player
-  @@players = []
+  @@all = []
 
   class << self
-    def players
-      @@players
+    def all
+      @@all
     end
   end
 
@@ -12,7 +12,7 @@ class Player
     @lives  = 3
     @points = 0 
     @name   = name
-    @@players << self
+    @@all << self
   end
 
   def points_string
