@@ -42,9 +42,9 @@ class Game
   end
 
   def lives_report
-    output = "Lives remaining: "
+    output = "Lives remaining:\n"
     players.each do |p|
-      output << "  #{p.name}: #{p.lives}"
+      output << "  #{p.name}: #{p.lives}\n"
     end
     output
   end
